@@ -1,0 +1,53 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    name: Run Pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: engineerd/setup-kind@v0.5.0
+
+      - run: export KUBECONFIG="$(kind get kubeconfig-path)"
+
+      - run: kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.23.0/release.yaml
+
+      - uses: jerop/tkn@v0.1.0
+
+      - run: |
+          tkn hub install task git-clone
+          tkn task describe git-clone
+
+      - run: |
+          tkn hub install task golang-test
+          tkn task describe golang-test
+
+      - run: |
+          tkn hub install task golangci-lint
+          tkn task describe golangci-lint
+
+      - run: |
+          tkn hub install task golang-build
+          tkn task describe golang-build
+
+      - run: |
+          kubectl apply -f tekton/golang-run.yaml
+          tkn task describe golang-run
+
+      - run: |
+          tkn pipeline start --showlog \
+            -f tekton/pipeline.yaml \
+            -p package=github.com/jerop/test-tkn \
+            -w name=workarea,volumeClaimTemplateFile=tekton/workspace.yaml \
+
+      - run: tkn pipelinerun ls
+      - run: tkn pipelinerun describe -L
