@@ -1,0 +1,51 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: go-pipeline
+spec:
+  params:
+    - name: package
+      description: package to release
+      default: github.com/jerop/test-tkn
+  workspaces:
+    - name: workarea
+      description: The workspace where the repo will be cloned
+  results:
+    - name: commit-sha
+      description: the sha of the commit that was used
+      value: $(tasks.git-clone.results.commit)
+  tasks:
+    - name: git-clone
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: workarea
+          subpath: git
+      params:
+        - name: url
+          value: https://$(params.package)
+    - name: golang-test
+      runAfter: [git-clone]
+      taskRef:
+        name: golang-test
+      params:
+        - name: package
+          value: $(params.package)
+      workspaces:
+        - name: source
+          workspace: workarea
+          subpath: git
+    - name: build
+      runAfter: [golang-test]
+      taskRef:
+        name: golang-build
+      params:
+        - name: package
+          value: $(params.package)
+        - name: packages
+          value: ./
+      workspaces:
+        - name: source
+          workspace: workarea
+          subpath: git

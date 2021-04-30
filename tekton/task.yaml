@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: greet
+spec:
+  params:
+    - name: name
+      description: who to greet
+  steps:
+    - name: greet
+      image: ubuntu
+      script: |
+        echo "Hello $(params.Name)"
