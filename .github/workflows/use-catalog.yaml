@@ -29,3 +29,12 @@ jobs:
           tkn task start git-clone --showlog \
             -p url=https://github.com/jerop/test-tkn \
             -w name=output,volumeClaimTemplateFile=tekton/workspace.yaml
+      
+      - run: tkn hub install task golang-test
+      - run: tkn task describe golang-test
+      - run: |
+          tkn task start golang-test --showlog \
+            -p package=github.com/jerop/test-tkn \
+            -w name=source,claimName=pvc    
+      
+      
