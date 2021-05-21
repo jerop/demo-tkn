@@ -1,0 +1,51 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: golang-run
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/tags: test
+    tekton.dev/displayName: "golang run"
+spec:
+  description: >-
+    This Task is Golang task to run Go projects.
+  params:
+    - name: package
+      description: package (and its children) to run
+    - name: context
+      description: path to the directory to use as context
+      default: "."
+    - name: version
+      description: golang version to use for tests
+      default: "latest"
+    - name: GOOS
+      description: "running program's operating system target"
+      default: linux
+    - name: GOARCH
+      description: "running program's architecture target"
+      default: amd64
+    - name: GO111MODULE
+      description: "value of module support"
+      default: auto
+  workspaces:
+    - name: source
+  steps:
+    - name: run
+      image: docker.io/library/golang:$(params.version)
+      script: |
+        SRC_PATH="$GOPATH/src/$(params.package)"
+        mkdir -p $SRC_PATH
+        cp -R "$(workspaces.source.path)"/* $SRC_PATH
+        cd $SRC_PATH
+        go run $(params.context)
+      env:
+        - name: GOPATH
+          value: /workspace
+        - name: GOOS
+          value: "$(params.GOOS)"
+        - name: GOARCH
+          value: "$(params.GOARCH)"
+        - name: GO111MODULE
+          value: "$(params.GO111MODULE)"
