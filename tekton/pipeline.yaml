@@ -6,7 +6,7 @@ spec:
   params:
     - name: package
       type: string
-      default: github.com/jerop/test-tkn
+      default: github.com/jerop/demo-tkn
   workspaces:
     - name: workarea
       description: The workspace where the repo will be cloned

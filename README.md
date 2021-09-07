@@ -1,6 +1,6 @@
 # Tekton GitHub Actions Demo
 
-![Build](https://github.com/jerop/test-tkn/actions/workflows/cd.yaml/badge.svg)
+![Build](https://github.com/jerop/demo-tkn/actions/workflows/cd.yaml/badge.svg)
 
 An example usage of [`tkn` GitHub Action][tkn-action] to lint, test, build and run a [Hello World Go app](hello.go) 
 using [Tekton][tekton]. 

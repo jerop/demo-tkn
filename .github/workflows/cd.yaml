@@ -44,7 +44,7 @@ jobs:
       - run: |
           tkn pipeline start --showlog \
             -f tekton/pipeline.yaml \
-            -p package=github.com/jerop/demo-tkn \
+            -p package=github.com/jerop/test-tkn \
             -w name=workarea,volumeClaimTemplateFile=tekton/workspace.yaml \
 
       - run: tkn pipelinerun ls
